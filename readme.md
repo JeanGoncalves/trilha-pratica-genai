@@ -202,10 +202,3 @@ prompt();
 - Adicione um documento `.txt` e use como base de contexto com `DocumentLoader`
 
 ---
-
-## Próximos Passos
-
--
-
-Se quiser, posso montar esse curso também como workspace em Notion com etapas marcáveis, código e links. Só dar o sinal!
-
