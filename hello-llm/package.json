@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "start": "npx ts-node index.ts",
+    "chat": "npx ts-node chat.ts",
+    "dev": "npx ts-node index.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -10,7 +13,9 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "chalk": "^4.1.2",
     "dotenv": "^17.2.0",
+    "ollama": "^0.5.16",
     "openai": "^5.9.0"
   },
   "devDependencies": {

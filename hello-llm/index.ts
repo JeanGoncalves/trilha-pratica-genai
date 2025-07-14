@@ -1,12 +1,11 @@
 import { config } from 'dotenv';
 import readline from 'readline';
-import { OpenAI } from 'openai';
+import { Ollama } from 'ollama';
+import chalk from 'chalk';
 
 config();
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+const ollama = new Ollama();
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -15,12 +14,17 @@ const rl = readline.createInterface({
 
 function perguntar(prompt: string): void {
     rl.question(prompt, async (question) => {
-        const response = await openai.chat.completions.create({
-            model: 'gpt-3.5-turbo',
-            messages: [{ role: 'user', content: question }],
-        });
-        console.log(response.choices[0].message.content);
-        rl.close();
+        try {
+            const response = await ollama.chat({
+                model: 'llama3.2',
+                messages: [{ role: 'user', content: question }],
+            });
+            console.log(chalk.blue(response.message.content));
+        } catch (error) {
+            console.error('Erro ao processar a pergunta:', error);
+        } finally {
+            rl.close();
+        }
     });
 }
 
