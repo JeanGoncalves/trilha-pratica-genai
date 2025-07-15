@@ -41,18 +41,20 @@ async function chat(): Promise<void> {
                 console.log(chalk.gray('\n🤖 Pensando...\n'));
                 messages.push({ role: 'user', content: question });
 
+                const toolsFormatted = tools.map(tool => ({
+                    type: 'function' as const,
+                    function: {
+                        name: tool.name,
+                        description: tool.description,
+                        parameters: tool.parameters
+                    }
+                }));
+
                 const response = await openai.chat.completions.create({
                     model: 'gpt-4o-mini',
                     messages: messages as any,
                     tool_choice: 'auto',
-                    tools: tools.map(tool => ({
-                        type: 'function',
-                        function: {
-                            name: tool.name,
-                            description: tool.description,
-                            parameters: tool.parameters
-                        }
-                    })),
+                    tools: toolsFormatted,
                     temperature: 0.7,
                 });
 
@@ -61,9 +63,11 @@ async function chat(): Promise<void> {
                 if (message.tool_calls && message.tool_calls.length > 0) {
                     messages.push({ role: 'assistant', content: message.content || '', tool_calls: message.tool_calls } as any);
                     
-                    for (const toolCall of message.tool_calls) {
-                        const tool = tools.find(t => t.name === toolCall.function.name);
-                        if (tool) {
+                    const toolResults = await Promise.all(
+                        message.tool_calls.map(async (toolCall) => {
+                            const tool = tools.find(t => t.name === toolCall.function.name);
+                            if (!tool) return null;
+                            
                             try {
                                 let args = toolCall.function.arguments;
                                 if (typeof args === 'string') {
@@ -71,34 +75,28 @@ async function chat(): Promise<void> {
                                 }
                                 
                                 const result = await (tool.function as any)(args);
-                                
-                                messages.push({
-                                    role: 'tool',
+                                return {
+                                    role: 'tool' as const,
                                     content: JSON.stringify(result),
                                     tool_call_id: toolCall.id
-                                });
+                                };
                             } catch (error) {
-                                messages.push({
-                                    role: 'tool',
+                                return {
+                                    role: 'tool' as const,
                                     content: JSON.stringify({ error: String(error) }),
                                     tool_call_id: toolCall.id
-                                });
+                                };
                             }
-                        }
-                    }
+                        })
+                    );
+
+                    toolResults.filter(Boolean).forEach(result => messages.push(result as any));
 
                     const finalResponse = await openai.chat.completions.create({
                         model: 'gpt-4o-mini',
                         messages: messages as any,
                         temperature: 0.7,
-                        tools: tools.map(tool => ({
-                            type: 'function',
-                            function: {
-                                name: tool.name,
-                                description: tool.description,
-                                parameters: tool.parameters
-                            }
-                        }))
+                        tools: toolsFormatted
                     });
 
                     const finalContent = finalResponse.choices[0].message.content || '';
