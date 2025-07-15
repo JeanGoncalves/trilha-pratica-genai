@@ -1,95 +1,65 @@
-# Hello LLM
+# Chat com OpenAI
 
-Um chatbot simples usando Ollama para executar modelos de linguagem localmente e de forma gratuita.
+Este é um chatbot que utiliza a OpenAI API com suporte a tools/functions.
 
-## Pré-requisitos
+## Configuração
 
-- Node.js e npm
-- Ollama instalado no sistema
+### Variáveis de ambiente
 
-## Instalação
+Crie um arquivo `.env` na raiz do projeto:
 
-1. Instale o Ollama:
-```bash
-brew install ollama
+```env
+OPENAI_API_KEY=sua-chave-da-openai-aqui
+OPENAI_MODEL=gpt-4o-mini
 ```
 
-2. Inicie o serviço do Ollama:
-```bash
-brew services start ollama
-```
+### Modelos suportados
 
-3. Baixe um modelo (exemplo: Llama 3.1):
-```bash
-ollama pull llama3.1
-```
+O chatbot funciona com qualquer modelo da OpenAI que suporte function calling:
 
-4. Instale as dependências do projeto:
-```bash
-npm install
-```
+#### ✅ **Modelos recomendados:**
+- `gpt-4o` - Mais avançado, melhor compreensão de tools
+- `gpt-4o-mini` - **Padrão** - Boa relação custo/benefício
+- `gpt-4-turbo` - Muito bom com tools
+- `gpt-3.5-turbo` - Mais barato, performance básica
+
+#### ❌ **Modelos NÃO suportados:**
+- `gpt-3.5-turbo-instruct` - Não suporta function calling
+- Modelos mais antigos
 
 ## Como usar
 
-### Versão simples (uma pergunta por vez):
 ```bash
-npm start
-# ou
-npx ts-node index.ts
-```
-
-### Versão interativa (múltiplas perguntas):
-```bash
+# Usar modelo padrão (gpt-4o-mini)
 npm run chat
-# ou
-npx ts-node chat.ts
+
+# Usar modelo específico
+OPENAI_MODEL=gpt-4o npm run chat
+
+# Ou definir no .env
+echo "OPENAI_MODEL=gpt-4o" >> .env
+npm run chat
 ```
 
-Digite sua pergunta e pressione Enter para obter uma resposta. Na versão interativa, digite "sair" para encerrar.
+## Tools disponíveis
 
-## Exemplo da interface
+1. **calculator** - Realiza operações matemáticas
+2. **weather** - Busca previsão do tempo
+3. **dataAtual** - Retorna data atual
+4. **cep** - Busca informações de CEP
 
-```
-💬 Chatbot com Ollama iniciado! Digite "sair" para encerrar.
+## Diferenças entre modelos
 
-14/07/2025, 17:15 Você: Olá, como você está?
+| Modelo | Velocidade | Custo | Qualidade Tools | Recomendado para |
+|--------|-----------|-------|-----------------|------------------|
+| gpt-4o | Média | Alto | Excelente | Aplicações críticas |
+| gpt-4o-mini | Rápida | Baixo | Boa | **Uso geral** |
+| gpt-4-turbo | Lenta | Alto | Excelente | Tarefas complexas |
+| gpt-3.5-turbo | Muito rápida | Muito baixo | Básica | Testes/desenvolvimento |
 
-14/07/2025, 17:15 🤖 Pensando...
+## Instalação
 
-14/07/2025, 17:15 🤖 Bot: Estou funcionando corretamente, obrigado por perguntar! Como posso ajudá-lo hoje?
-```
-
-## Modelos disponíveis
-
-Você pode usar diferentes modelos alterando o valor do `model` no código:
-
-- `llama3.1` (padrão)
-- `llama3.2`
-- `codellama`
-- `mistral`
-- `gemma`
-- `phi3`
-
-Para ver todos os modelos disponíveis:
 ```bash
-ollama list
-```
-
-Para baixar um novo modelo:
-```bash
-ollama pull nome-do-modelo
-```
-
-## Funcionalidades
-
-- **Interface colorida**: Respostas em azul, prompts em amarelo, sistema em verde
-- **Timestamp**: Mostra data e hora brasileira (formato DD/MM/AAAA, HH:MM)
-- **Sistema de contexto**: Mantém histórico da conversa (versão chat)
-- **Prompt personalizado**: Instruções específicas para o assistente
-
-## Vantagens do Ollama
-
-- **Gratuito**: Todos os modelos são gratuitos
-- **Privacidade**: Roda localmente, seus dados não saem do seu computador
-- **Sem limites**: Não há limites de uso ou quotas
-- **Offline**: Funciona sem internet após baixar o modelo 
+npm install
+npm run chat
+``` 

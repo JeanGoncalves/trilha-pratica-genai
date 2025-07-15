@@ -10,6 +10,8 @@ const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY,
 });
 
+const MODEL = process.env.OPENAI_MODEL || 'gpt-4o-mini';
+
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -23,7 +25,7 @@ Quero apenas respostas descritivas e não deve ter respostas da tool, e sim o re
 `;
 
 async function chat(): Promise<void> {
-    console.log(chalk.green('💬 Chatbot com OpenAI iniciado! Digite "sair" para encerrar.\n'));
+    console.log(chalk.green(`💬 Chatbot com OpenAI (${MODEL}) iniciado! Digite "sair" para encerrar.\n`));
     
     let messages: { role: 'system' | 'user' | 'assistant' | 'tool', content: string, tool_call_id?: string }[] = [
         { role: 'system', content: prompt }
@@ -51,7 +53,7 @@ async function chat(): Promise<void> {
                 }));
 
                 const response = await openai.chat.completions.create({
-                    model: 'gpt-4o-mini',
+                    model: MODEL,
                     messages: messages as any,
                     tool_choice: 'auto',
                     tools: toolsFormatted,
@@ -93,7 +95,7 @@ async function chat(): Promise<void> {
                     toolResults.filter(Boolean).forEach(result => messages.push(result as any));
 
                     const finalResponse = await openai.chat.completions.create({
-                        model: 'gpt-4o-mini',
+                        model: MODEL,
                         messages: messages as any,
                         temperature: 0.7,
                         tools: toolsFormatted
