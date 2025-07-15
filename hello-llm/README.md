@@ -19,9 +19,9 @@ brew install ollama
 brew services start ollama
 ```
 
-3. Baixe um modelo (exemplo: Llama 3.2):
+3. Baixe um modelo (exemplo: Llama 3.1):
 ```bash
-ollama pull llama3.2
+ollama pull llama3.1
 ```
 
 4. Instale as dependências do projeto:
@@ -63,11 +63,12 @@ Digite sua pergunta e pressione Enter para obter uma resposta. Na versão intera
 
 Você pode usar diferentes modelos alterando o valor do `model` no código:
 
-- `llama3.2` (padrão)
-- `llama3.1`
+- `llama3.1` (padrão)
+- `llama3.2`
 - `codellama`
 - `mistral`
 - `gemma`
+- `phi3`
 
 Para ver todos os modelos disponíveis:
 ```bash

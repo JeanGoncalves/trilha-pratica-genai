@@ -6,6 +6,7 @@
     "start": "npx ts-node index.ts",
     "chat": "npx ts-node chat.ts",
     "dev": "npx ts-node index.ts",
+    "test-tools": "npx ts-node test-tools.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

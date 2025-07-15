@@ -35,7 +35,7 @@ function perguntar(promptText: string): void {
         try {
             console.log(chalk.gray(`\n${dateNow()} 🤖 Pensando...\n`));
             const response = await ollama.chat({
-                model: 'llama3.2',
+                model: 'qwen2.5',
                 messages: [
                     { role: 'system', content: prompt },
                     { role: 'user', content: question }
