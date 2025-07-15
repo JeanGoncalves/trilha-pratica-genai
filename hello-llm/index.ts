@@ -1,11 +1,17 @@
 import { config } from 'dotenv';
 import readline from 'readline';
-import { Ollama } from 'ollama';
+import OpenAI from 'openai';
 import chalk from 'chalk';
+import { tools } from './tools';
+import { chatCompletion } from './utils/chatCompletion';
 
 config();
 
-const ollama = new Ollama();
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+});
+
+const MODEL = process.env.OPENAI_MODEL || 'gpt-4.1-mini';
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -26,31 +32,52 @@ const dateNow = () => {
 
 const prompt = `
 Você é um assistente de IA que responde perguntas de forma educativa e informativa.
-jamais deve falar sobre o modelo que está usando, apenas responda as perguntas.
+Jamais deve falar sobre o modelo que está usando, apenas responda as perguntas.
+Você tem acesso a ferramentas/tools que pode usar quando necessário. Caso seja necessário usar uma ferramenta para usar outra, use!
+Quero apenas respostas descritivas e não deve ter respostas da tool, e sim o resumo.
 Hoje é ${dateNow()}.
 `;
 
-function perguntar(promptText: string): void {
-    rl.question(chalk.yellow(`${dateNow()} ${promptText}`), async (question) => {
-        try {
-            console.log(chalk.gray(`\n${dateNow()} 🤖 Pensando...\n`));
-            const response = await ollama.chat({
-                model: 'qwen2.5',
-                messages: [
-                    { role: 'system', content: prompt },
-                    { role: 'user', content: question }
-                ],
-                options: {
+async function chat(): Promise<void> {
+    console.log(chalk.green(`💬 Chatbot com OpenAI (${MODEL}) iniciado! Digite "sair" para encerrar.\n`));
+    
+    let messages: any[] = [
+        { role: 'system', content: prompt }
+    ];
+
+    const perguntarContinuo = (): void => {
+        rl.question(chalk.yellow(`${dateNow()} Você: `), async (question) => {
+            if (question.toLowerCase() === 'sair') {
+                console.log(chalk.green('\nObrigado por usar o chatbot! Até mais! 👋'));
+                rl.close();
+                return;
+            }
+
+            try {
+                console.log(chalk.gray(`\n${dateNow()} 🤖 Pensando...\n`));
+                messages.push({ role: 'user', content: question });
+
+                const response = await chatCompletion({
+                    openai,
+                    model: MODEL,
+                    messages,
+                    tools,
                     temperature: 0.7,
-                },
-            });
-            console.log(chalk.blue(`${dateNow()} 🤖 Bot: ${response.message.content}`));
-        } catch (error) {
-            console.error(chalk.red('❌ Erro ao processar a pergunta:'), error);
-        } finally {
-            rl.close();
-        }
-    });
+                    toolChoice: 'auto'
+                });
+
+                messages = response.messages;
+                console.log(chalk.blue(`${dateNow()} 🤖 Bot: ${response.content}\n`));
+                
+            } catch (error) {
+                console.error(chalk.red('❌ Erro ao processar a pergunta:'), error);
+            }
+            
+            perguntarContinuo();
+        });
+    };
+
+    perguntarContinuo();
 }
 
-perguntar('Você: ');
+chat();
